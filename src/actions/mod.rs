@@ -1,8 +1,11 @@
-use std::fs;
-
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
+mod storage;
+use storage::Storage;
 
+use crate::constants::STORAGE_PATH;
+
+#[derive(Debug)]
 pub struct TodoType {
     uuid: Option<Uuid>,
     item: String,
@@ -13,12 +16,17 @@ pub struct TodoType {
 
 pub struct Todo {
     todos: Vec<TodoType>,
+    storage: Storage
 }
 
 impl Todo {
     pub fn init(initial_value: Vec<TodoType>) -> Self {
+        let st = Storage::new(STORAGE_PATH.to_string());
+        let contents = &st.read();
+        let parsed = &st.parse(&contents.to_string());
         Self {
             todos: initial_value,
+            storage:st
         }
     }
 
@@ -32,6 +40,7 @@ impl Todo {
             updated_at: Utc::now(),
         };
         self.todos.push(todo);
+        
         println!("Item added successfully");
     }
 
